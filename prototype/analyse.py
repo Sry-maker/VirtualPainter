@@ -133,6 +133,7 @@ class Analyse(QWidget):
         control_layout.addWidget(self.publish_btn)
         layout.addLayout(control_layout)
         self.setLayout(layout)
+        self.publish_btn.setFixedSize(25,25)
 
 
 

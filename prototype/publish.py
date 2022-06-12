@@ -14,7 +14,7 @@ from PyQt5.QtCore import Qt, QSize, QPoint
 from enum import Enum
 from threading import Thread
 from setting import Setting
-from ui_func import set_button_style
+
 class ConnectState(Enum):
     connected = 0
     connecting = 1

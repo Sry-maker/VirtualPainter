@@ -10,7 +10,6 @@ from paho.mqtt.subscribeoptions import SubscribeOptions
 from setting import Setting
 from subscribe_item import SubscribeItem
 from paho.mqtt import client as mqtt_client
-from ui_func import set_button_style
 import time
 
 class ConnectState(Enum):
@@ -36,7 +35,7 @@ class Subscribe(QWidget):
         self.disconnect_btn = QPushButton('断开')
         self.cancel_btn = QPushButton('取消')
         self.loading = QLabel()
-        self.setting_btn = QPushButton()
+        self.setting_btn = QPushButton("设置")
         self.setting_widget = Setting(self.connect_info)
         self.light = QLabel()
         self.subscribe_edit = QComboBox()
@@ -50,15 +49,15 @@ class Subscribe(QWidget):
         self.init_slot()
 
     def init_ui(self):
-        self.setting_btn.setFixedSize(25, 25)
+        # self.setting_btn.setFixedSize(25, 25)
         self.setting_btn.setFlat(True)
-        self.setting_btn.setIcon(QIcon('pic/setting.png'))
-        self.setting_btn.setStyleSheet('QPushButton{border:none;} '
-                                       'QPushButton:hover{background-color: rgb(224,224,224);}')
-        set_button_style(self.connect_btn, 'blue')
-        set_button_style(self.disconnect_btn, 'white')
+        # self.setting_btn.setIcon(QIcon('pic/setting.png'))
+        # self.setting_btn.setStyleSheet('QPushButton{border:none;} '
+        #                                'QPushButton:hover{background-color: rgb(224,224,224);}')
+        # self.setting_btn.setText("设置")
+
         self.disconnect_btn.setEnabled(False)
-        set_button_style(self.cancel_btn, 'white')
+
         self.cancel_btn.setVisible(False)
         movie = QMovie('pic/loading.gif')
         movie.start()
@@ -66,7 +65,7 @@ class Subscribe(QWidget):
         self.loading.setVisible(False)
         self.light.setFixedSize(25, 25)
         self.light.setPixmap(QPixmap('pic/red.png'))
-        set_button_style(self.subscribe_btn, 'blue')
+
         self.subscribe_edit.setFixedWidth(300)
         self.subscribe_edit.setEditable(True)
         self.subscribe_edit.setEnabled(False)

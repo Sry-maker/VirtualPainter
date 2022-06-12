@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import QWidget, QLabel, QPushButton, QHBoxLayout, QVBoxLayout
 from PyQt5.QtGui import QFont, QBrush, QColor
 from PyQt5.QtCore import Qt
-from ui_func import set_button_style
+
 
 
 class SubscribeItem(QWidget):
@@ -27,8 +27,6 @@ class SubscribeItem(QWidget):
         self.num.setFixedSize(50, 20)
         self.num.setAlignment(Qt.AlignCenter)
         self.num.setStyleSheet('border-radius: 8px; background-color: gray')
-        set_button_style(self.mute_btn, 'white')
-        set_button_style(self.unsubscribe_btn, 'blue')
         title_layout = QHBoxLayout()
         title_layout.addWidget(self.title, 0, Qt.AlignLeft)
         title_layout.addWidget(self.num, 0, Qt.AlignRight)

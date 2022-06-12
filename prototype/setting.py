@@ -1,7 +1,5 @@
 from PyQt5.QtWidgets import QDialog, QLabel, QLineEdit, QPushButton, QHBoxLayout, QVBoxLayout
 from PyQt5.QtCore import Qt
-from ui_func import set_button_style
-
 
 class Setting(QDialog):
     def __init__(self, info):
@@ -41,9 +39,6 @@ class Setting(QDialog):
         password_layout.addStretch()
         password_layout.addWidget(self.password_edit)
         control_layout = QHBoxLayout()
-        set_button_style(self.cancel_btn, 'white')
-        set_button_style(self.apply_btn, 'blue')
-        set_button_style(self.ok_btn, 'blue')
         control_layout.addStretch()
         control_layout.addWidget(self.cancel_btn)
         control_layout.addWidget(self.apply_btn)

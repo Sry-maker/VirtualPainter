@@ -86,6 +86,7 @@ if __name__ == '__main__':
 
 
 def message(client, userdata, msg):
+    #fxianshichulai
     print(f"Received `{msg.payload.decode()}` from `{msg.topic}` topic")
 
 class mqtt():
@@ -114,7 +115,7 @@ class mqtt():
 
 
 
-    def __publish(self,client):
+    def __publish(self,client):#f
         time.sleep(1)
         msg = f"messages: {1}"
         result = client.publish(self.topic, msg)
