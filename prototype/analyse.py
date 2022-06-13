@@ -91,8 +91,15 @@ def AiVirtualPainter(parent):
         imgGray = cv2.cvtColor(parent.imgCanvas, cv2.COLOR_BGR2GRAY)
         _, imgInv = cv2.threshold(imgGray, 50, 255, cv2.THRESH_BINARY_INV)
         imgInv = cv2.cvtColor(imgInv, cv2.COLOR_GRAY2BGR)
+        # cv2.imwrite('C:\\Users\\Lenovo\\Desktop\\t\\a.jpg', imgInv)
         img = cv2.bitwise_and(img, imgInv)
+        # cv2.imwrite('C:\\Users\\Lenovo\\Desktop\\t\\b.jpg', img)
         img = cv2.bitwise_or(img, parent.imgCanvas)
+        chuanshuimg=cv2.bitwise_or(imgInv, parent.imgCanvas)
+        parent.chuanshu=chuanshuimg
+        a1_dtype = str(parent.chuanshu.dtype)
+        a1_shape = str(parent.chuanshu.shape)
+        # cv2.imwrite('C:\\Users\\Lenovo\\Desktop\\t\\d.jpg', chuanshuimg)
         img[0:1280][0:153] = header
 
 
@@ -104,6 +111,7 @@ def AiVirtualPainter(parent):
             height,width,bytesPerComponent = img.shape
             bytesPerLine = bytesPerComponent * width
             qImg = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)  # opencv读取的bgr格式图片转换成rgb格式
+
             qImg = QtGui.QImage(qImg.data,width, height, bytesPerLine,
                                   QtGui.QImage.Format_RGB888)  # pyqt5转换成自己能放的图片格式
             jpg_out = QtGui.QPixmap(qImg)  # 设置图片大小
@@ -120,6 +128,7 @@ class Analyse(QWidget):
         self.init_slot()
         self.update_paint()
         self.imgCanvas = np.zeros((720, 1280, 3), np.uint8)  # 新建一个画板
+        self.chuanshu = np.zeros((720, 1280, 3), np.uint8)
         # 发送端连接
         self.publish = Publish()
         self.publish.click_connect_btn()
@@ -146,7 +155,7 @@ class Analyse(QWidget):
 
     # 发送到paint主题下
     def send_paint(self):
-        self.publish.click_publish_btn("paint", bytearray(self.imgCanvas.tobytes()))
+        self.publish.click_publish_btn("paint", (self.chuanshu.tobytes()))
 
     # 接收到
     def receive_paint(self, imgCanvas):

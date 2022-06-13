@@ -1,6 +1,6 @@
 from PyQt5.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout, QPushButton, \
     QComboBox, QFrame, QTextEdit, QLabel, QListWidget, QListWidgetItem, QAbstractItemView
-from PyQt5.QtGui import QIcon, QFont, QPixmap, QMovie
+from PyQt5.QtGui import QIcon, QFont, QPixmap, QMovie, QTextDocumentFragment
 from PyQt5.QtCore import Qt, QSize, QPoint
 from enum import Enum
 from threading import Thread
@@ -41,8 +41,7 @@ class Subscribe(QWidget):
         self.subscribe_edit = QComboBox()
         self.subscribe_btn = QPushButton('订阅')
         self.subscribe_list = QListWidget()
-        self.info_list = QListWidget()
-        self.info_display_title = QLabel('')
+        self.info_display_title = QLabel('图片显示')
         self.info_display_id = QLabel('')
         self.info_display = QTextEdit()
         self.init_ui()
@@ -80,9 +79,9 @@ class Subscribe(QWidget):
         self.subscribe_list.setStyleSheet('background-color:transparent;border:none')
         self.subscribe_list.setSelectionMode(QAbstractItemView.MultiSelection)
         self.subscribe_list.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        self.info_list.setFixedHeight(300)
-        self.info_list.setStyleSheet('background-color:transparent; border:none')
-        self.info_list.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        # self.info_list.setFixedHeight(300)
+        # self.info_list.setStyleSheet('background-color:transparent; border:none')
+        # self.info_list.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         font = QFont()
         font.setBold(QFont.Black)
         self.info_display_title.setFont(font)
@@ -112,7 +111,7 @@ class Subscribe(QWidget):
         subscribe_control_layout.addWidget(self.subscribe_btn)
         right_layout = QVBoxLayout()
         right_layout.addLayout(connect_control_layout)
-        right_layout.addWidget(self.info_list)
+        # right_layout.addWidget(self.info_list)
         right_layout.addWidget(horizontal_line)
         right_layout.addLayout(info_display_layout)
         left_layout = QVBoxLayout()
@@ -123,6 +122,9 @@ class Subscribe(QWidget):
         layout.addWidget(vertical_line, 0, Qt.AlignLeft)
         layout.addLayout(right_layout)
         self.setLayout(layout)
+        image="<img src=\"qq.jpg\" "+"width='10px' height=10px'/>"
+        self.info_display.insertHtml(image)
+        # self.info_display.append("<img src=\"qq.jpg\" />")
 
     def init_slot(self):
         self.connect_btn.clicked.connect(self.click_connect_btn)
@@ -130,8 +132,6 @@ class Subscribe(QWidget):
         self.cancel_btn.clicked.connect(self.click_cancel_btn)
         self.subscribe_btn.clicked.connect(self.click_subscribe_btn)
         self.subscribe_edit.editTextChanged.connect(self.subscribe_edit_changed)
-        self.subscribe_list.itemSelectionChanged.connect(self.update_info_list)
-        self.info_list.itemSelectionChanged.connect(self.update_info_display)
         self.setting_btn.clicked.connect(self.setting_btn_clicked)
 
     def click_connect_btn(self):
@@ -151,7 +151,6 @@ class Subscribe(QWidget):
         self.subscribe_edit.clear()
         self.subscribe_edit.clearEditText()
         self.subscribe_edit.setEnabled(False)
-        self.info_list.clear()
         self.subscribe_list.clear()
         self.subscribe_items.clear()
 
@@ -259,37 +258,6 @@ class Subscribe(QWidget):
             time.sleep(1)
 
 
-
-    def update_info_list(self):
-        self.info_list.clear()
-        selected_list = self.subscribe_list.selectedItems()
-        for i in range(0, len(selected_list)):
-            name = selected_list[i].whatsThis()
-            info_array = self.data.get(name, [])
-            for identity in range(0, len(info_array)):
-                self.add_info_list(name, identity)
-
-    def add_info_list(self, name, identity):
-        info_title = QLabel(name)
-        font = QFont()
-        font.setBold(QFont.Black)
-        info_title.setFont(font)
-        info_id = QLabel(str(identity))
-        info_id.setFixedSize(50, 20)
-        info_id.setAlignment(Qt.AlignCenter)
-        info_id.setStyleSheet('border-radius: 8px; background-color: gray')
-        layout = QHBoxLayout()
-        layout.addWidget(info_title, 0, Qt.AlignLeft)
-        layout.addWidget(info_id, 0, Qt.AlignRight)
-        w = QWidget()
-        w.setMinimumHeight(40)
-        w.setLayout(layout)
-        list_item = QListWidgetItem()
-        list_item.setSizeHint(QSize(0, 40))
-        list_item.setWhatsThis(name+' '+str(identity))
-        self.info_list.addItem(list_item)
-        self.info_list.setItemWidget(list_item, w)
-        return
 
     def update_info_display(self):
         selected_info = self.info_list.selectedItems()
