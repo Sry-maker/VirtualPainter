@@ -160,9 +160,9 @@ class Analyse(QWidget):
 
     # 发送到paint主题下
     def send_paint(self):
-        self.publish.click_publish_btn("paint", (self.chuanshu.tobytes()))
+        self.publish.click_publish_btn("paint", (self.imgCanvas.tobytes()))
     def merge(self):
-        self.imgCanvas = cv2.bitwise_and(self.hebing, self.imgCanvas)
+        self.imgCanvas = cv2.bitwise_or(self.hebing, self.imgCanvas)
         cv2.imwrite('imgCanvas.jpg',self.imgCanvas)
         print("hebing")
 
