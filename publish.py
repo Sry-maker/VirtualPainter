@@ -88,10 +88,11 @@ if __name__ == '__main__':
 
 def message(client, userdata, msg):
     #fxianshichulai 720, 1280, 3  '(720, 1280, 3)' 'uint8'
-    a2 = np.frombuffer(msg.payload, dtype=getattr(np, 'uint8')).reshape(eval('(720, 1280, 3)'))
-    # print(f"Received `{msg.payload.decode()}` from `{msg.topic}` topic")
-    cv2.imwrite('C:\\Users\\Lenovo\\Desktop\\t\\qq.jpg', a2)
+    # a2 = np.frombuffer(msg.payload, dtype=getattr(np, 'uint8')).reshape(eval('(720, 1280, 3)'))
+    # # print(f"Received `{msg.payload.decode()}` from `{msg.topic}` topic")
+    # cv2.imwrite('C:\\Users\\Lenovo\\Desktop\\t\\qq.jpg', a2)
     print("test")
+    return  msg
 
 class mqtt():
     def __init__(self,topic = "paint",on_message = message):
@@ -119,16 +120,16 @@ class mqtt():
 
 
 
-    # def __publish(self,client):#f
-    #     time.sleep(1)
-    #     msg = f"messages: {1}"
-    #     result = client.publish(self.topic, msg)
-    #     # result: [0, 1]
-    #     status = result[0]
-    #     if status == 0:
-    #         print(f"Send `{msg}` to topic `{self.topic}`")
-    #     else:
-    #         print(f"Failed to send message to topic {self.topic}")
+    def __publish(self,client):#f
+        time.sleep(1)
+        msg = f"messages: {1}"
+        result = client.publish(self.topic, msg)
+        # result: [0, 1]
+        status = result[0]
+        if status == 0:
+            print(f"Send `{msg}` to topic `{self.topic}`")
+        else:
+            print(f"Failed to send message to topic {self.topic}")
 
 
     def __subscribe(self,client: mqtt_client):
@@ -143,7 +144,7 @@ class mqtt():
     def init_publish(self):
         client = self.__connect_mqtt(self.__publish_id)
         client.loop_start()
-        # self.__publish(client)
+        self.__publish(client)
 
 
 

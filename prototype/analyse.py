@@ -159,4 +159,5 @@ class Analyse(QWidget):
 
     # 接收到
     def receive_paint(self, imgCanvas):
-        self.imgCanvas = cv2.bitwise_or(self.imgCanvas, imgCanvas)
+        print("??????????")
+        # self.imgCanvas = cv2.bitwise_or(self.imgCanvas, imgCanvas)

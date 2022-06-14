@@ -6,7 +6,8 @@ from enum import Enum
 from threading import Thread
 import json
 from paho.mqtt.subscribeoptions import SubscribeOptions
-
+import numpy as np
+import cv2
 from setting import Setting
 from subscribe_item import SubscribeItem
 from paho.mqtt import client as mqtt_client
@@ -44,6 +45,7 @@ class Subscribe(QWidget):
         self.info_display_title = QLabel('图片显示')
         self.info_display_id = QLabel('')
         self.info_display = QTextEdit()
+        self.accept_btn=QPushButton("接收最新消息")
         self.init_ui()
         self.init_slot()
 
@@ -56,8 +58,9 @@ class Subscribe(QWidget):
         # self.setting_btn.setText("设置")
 
         self.disconnect_btn.setEnabled(False)
-
+        self.accept_btn.setEnabled(False)
         self.cancel_btn.setVisible(False)
+
         movie = QMovie('pic/loading.gif')
         movie.start()
         self.loading.setMovie(movie)
@@ -102,6 +105,7 @@ class Subscribe(QWidget):
         connect_control_layout.addWidget(self.setting_btn)
         connect_control_layout.addWidget(self.connect_btn)
         connect_control_layout.addWidget(self.disconnect_btn)
+        connect_control_layout.addWidget(self.accept_btn)
         connect_control_layout.addStretch()
         connect_control_layout.addWidget(self.loading)
         connect_control_layout.addWidget(self.cancel_btn)
@@ -122,13 +126,13 @@ class Subscribe(QWidget):
         layout.addWidget(vertical_line, 0, Qt.AlignLeft)
         layout.addLayout(right_layout)
         self.setLayout(layout)
-        image="<img src=\"qq.jpg\" "+"width='10px' height=10px'/>"
-        self.info_display.insertHtml(image)
+
         # self.info_display.append("<img src=\"qq.jpg\" />")
 
     def init_slot(self):
         self.connect_btn.clicked.connect(self.click_connect_btn)
         self.disconnect_btn.clicked.connect(self.click_disconnect_btn)
+        self.accept_btn.clicked.connect(self.click_accept_btn)
         self.cancel_btn.clicked.connect(self.click_cancel_btn)
         self.subscribe_btn.clicked.connect(self.click_subscribe_btn)
         self.subscribe_edit.editTextChanged.connect(self.subscribe_edit_changed)
@@ -154,6 +158,12 @@ class Subscribe(QWidget):
         self.subscribe_list.clear()
         self.subscribe_items.clear()
 
+    def click_accept_btn(self):
+        self.info_display.clear()
+        image = "<img src=\"new.jpg\" " + "width='10px' height=10px'/>"
+        # self.info_display.insertHtml(image)
+        self.info_display.append(image)
+        print("click_accept_btn")
     def click_cancel_btn(self):
         self.connect_btn.setEnabled(True)
         self.setting_btn.setEnabled(True)
@@ -198,15 +208,23 @@ class Subscribe(QWidget):
        
         # 读取到数据!!
         def on_message(client, userdata, msg):
-            print(f"Received `{msg.payload}` from `{msg.topic}` topic")
+            print(f"Received `` from `{msg.topic}` topic")
             if not self.subscribe_items[msg.topic].isMuted:
                 if msg.topic in self.data.keys():
                     self.data[msg.topic].append(msg.payload.decode('utf-16'))
                 else:
                     self.data[msg.topic]=[msg.payload.decode('utf-16')]
                 self.subscribe_items[msg.topic].inc()
-                imgCanvas = bytes(msg.payload)
+                imgCanvas = (msg.payload)
+                a2 = np.frombuffer(msg.payload, dtype=getattr(np, 'uint8')).reshape(eval('(720, 1280, 3)'))
+                # print(f"Received `{msg.payload.decode()}` from `{msg.topic}` topic")
+                cv2.imwrite('new.jpg', a2)
+                # image = "<img src=\"new.jpg\" " + "width='10px' height=10px'/>"
+                # # self.info_display.insertHtml(image)
+                # self.info_display.append(image)
+                # self.updatetext()
                 self.parent.analyse.receive_paint(imgCanvas)
+
 
 
 
@@ -230,15 +248,17 @@ class Subscribe(QWidget):
             elif connect_state == ConnectState.connected:
                 self.light.setPixmap(QPixmap('pic/green.png'))
                 self.disconnect_btn.setEnabled(True)
+                self.accept_btn.setEnabled(True)
                 self.subscribe_edit.setEnabled(True)
                 self.cancel_btn.setVisible(False)
                 self.loading.setVisible(False)
                 self.setting_btn.setEnabled(False)
         # 持续连接获取消息
         while True:
-            #print('state: ', self.client._state, 'loop进程：', self.client._thread)
+            # print('state: ', self.client._state, 'loop进程：', self.client._thread)
             if self.client._state != 2:
                 # 订阅消息
+                print('.................')
                 subscribe_source = list(zip(list(self.subscribe_items.keys()),[0]*len(self.subscribe_items)))
                 self.client.subscribe(subscribe_source) # 消息都在自定义的on_message函数中得到
                 if connect_state == ConnectState.disconnected:
@@ -276,3 +296,5 @@ class Subscribe(QWidget):
     def setting_btn_clicked(self):
         self.setting_widget.move(self.mapToGlobal(QPoint(420, 100)))
         self.setting_widget.show()
+
+
