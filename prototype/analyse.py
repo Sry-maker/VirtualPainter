@@ -5,6 +5,7 @@ from PyQt5.QtWidgets import QWidget, QLabel,  QComboBox, QPushButton, QHBoxLayou
 
 from threading import Thread
 
+from PIL import Image
 import cv2
 
 import HandTrackingModule as htm
@@ -209,12 +210,21 @@ class Analyse(QWidget):
         print("topic analysis"+topic)
         self.publish.click_publish_btn(topic, (self.imgCanvas.tobytes()))
     def merge(self):
+        tempname = self.parent.topic + "new.jpg"
+        image = Image.open(tempname)  # 用PIL中的Image.open打开图像
+        image_arr = np.array(image)  # 转化成numpy数组
+        self.hebing=image_arr
         self.imgCanvas = cv2.bitwise_or(self.hebing, self.imgCanvas)
-        cv2.imwrite('imgCanvas.jpg',self.imgCanvas)
+        # cv2.imwrite('imgCanvas.jpg',self.imgCanvas)
         print("hebing")
 
     # 接收到
     def receive_paint(self, imgCanvas):
-        self.hebing=np.frombuffer(imgCanvas, dtype=getattr(np, 'uint8')).reshape(eval('(720, 1280, 3)'))
+        print("test")
+        # tempname = self.topic + "new.jpg"
+        # image = Image.open(tempname)  # 用PIL中的Image.open打开图像
+        # image_arr = np.array(image)  # 转化成numpy数组
+        # self.hebing=image_arr
+        # self.hebing=np.frombuffer(imgCanvas, dtype=getattr(np, 'uint8')).reshape(eval('(720, 1280, 3)'))
 
         # self.imgCanvas = cv2.bitwise_or(self.imgCanvas, imgCanvas)
