@@ -45,7 +45,7 @@ class Subscribe(QWidget):
         self.info_display_title = QLabel('图片显示')
         self.info_display_id = QLabel('')
         self.info_display = QTextEdit()
-        self.accept_btn=QPushButton("接收最新消息")
+        self.accept_btn=QPushButton("显示最新消息")
         self.init_ui()
         self.init_slot()
 

@@ -129,6 +129,7 @@ class Analyse(QWidget):
         self.update_paint()
         self.imgCanvas = np.zeros((720, 1280, 3), np.uint8)  # 新建一个画板
         self.chuanshu = np.zeros((720, 1280, 3), np.uint8)
+        self.hebing = np.zeros((720, 1280, 3), np.uint8)
         # 发送端连接
         self.publish = Publish()
         self.publish.click_connect_btn()
@@ -139,15 +140,19 @@ class Analyse(QWidget):
         self.imgLabel = QLabel()
         control_layout.addWidget(self.imgLabel)
         self.publish_btn = QPushButton('发送')
+        self.merge_btn=QPushButton("合并")
         control_layout.addWidget(self.publish_btn)
+        control_layout.addWidget(self.merge_btn)
         layout.addLayout(control_layout)
         self.setLayout(layout)
         self.publish_btn.setFixedSize(25,25)
+        self.merge_btn.setFixedSize(25,25)
 
 
 
     def init_slot(self):
         self.publish_btn.clicked.connect(self.send_paint)
+        self.merge_btn.clicked.connect(self.merge)
 
     def update_paint(self):
         thread = Thread(target=AiVirtualPainter,args=(self,))
@@ -156,8 +161,13 @@ class Analyse(QWidget):
     # 发送到paint主题下
     def send_paint(self):
         self.publish.click_publish_btn("paint", (self.chuanshu.tobytes()))
+    def merge(self):
+        self.imgCanvas = cv2.bitwise_and(self.hebing, self.imgCanvas)
+        cv2.imwrite('imgCanvas.jpg',self.imgCanvas)
+        print("hebing")
 
     # 接收到
     def receive_paint(self, imgCanvas):
-        print("??????????")
+        self.hebing=np.frombuffer(imgCanvas, dtype=getattr(np, 'uint8')).reshape(eval('(720, 1280, 3)'))
+
         # self.imgCanvas = cv2.bitwise_or(self.imgCanvas, imgCanvas)
