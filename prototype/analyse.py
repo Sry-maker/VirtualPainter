@@ -120,8 +120,9 @@ def AiVirtualPainter(parent):
 
 
 class Analyse(QWidget):
-    def __init__(self):
+    def __init__(self,parent):
         super(Analyse, self).__init__()
+        self.parent=parent
         self.a = 0
         self.b = None
         self.init_ui()
@@ -160,7 +161,9 @@ class Analyse(QWidget):
 
     # 发送到paint主题下
     def send_paint(self):
-        self.publish.click_publish_btn("paint", (self.imgCanvas.tobytes()))
+        topic=self.parent.topic
+        print("topic analysis"+topic)
+        self.publish.click_publish_btn(topic, (self.imgCanvas.tobytes()))
     def merge(self):
         self.imgCanvas = cv2.bitwise_or(self.hebing, self.imgCanvas)
         cv2.imwrite('imgCanvas.jpg',self.imgCanvas)

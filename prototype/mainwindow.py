@@ -20,7 +20,8 @@ class MainWindow(QMainWindow):
         line.setFrameShape(QFrame.HLine)
         line.setFrameShadow(QFrame.Plain)
         self.subscribe = Subscribe(self)
-        self.analyse = Analyse()
+        self.analyse = Analyse(self)
+        self.topic=""
         tab = QTabWidget(self)
         tab.addTab(self.subscribe, MainWindow.tr(self, '订阅'))
         tab.addTab(self.analyse, MainWindow.tr(self, '绘制'))

@@ -30,6 +30,7 @@ class Subscribe(QWidget):
         # 订阅获取的信息
         self.data = {'123': ['2', '4', '5'], 'test': ['a', 'b', 'c']}
         # 每个订阅物品的界面
+        self.topic=""
         self.subscribe_items = {}
         self.client = None
         self.connect_btn = QPushButton('连接')
@@ -160,7 +161,7 @@ class Subscribe(QWidget):
 
     def click_accept_btn(self):
         self.info_display.clear()
-        image = "<img src=\"new.jpg\" " + "width='10px' height=10px'/>"
+        image = "<img src="+self.topic+"new.jpg"  + "  width='10px' height=10px'/>"
         # self.info_display.insertHtml(image)
         self.info_display.append(image)
         print("click_accept_btn")
@@ -183,6 +184,7 @@ class Subscribe(QWidget):
         self.subscribe_list.setItemWidget(list_item, self.subscribe_items[name])
 
     def subscribe_edit_changed(self):
+        self.parent.topic=self.subscribe_edit.currentText()
         self.subscribe_btn.setEnabled(False)
         for i in range(0, self.subscribe_edit.count()):
             if self.subscribe_edit.currentText() == self.subscribe_edit.itemText(i):
@@ -218,7 +220,8 @@ class Subscribe(QWidget):
                 imgCanvas = (msg.payload)
                 a2 = np.frombuffer(msg.payload, dtype=getattr(np, 'uint8')).reshape(eval('(720, 1280, 3)'))
                 # print(f"Received `{msg.payload.decode()}` from `{msg.topic}` topic")
-                cv2.imwrite('new.jpg', a2)
+                tempname=self.topic+"new.jpg"
+                cv2.imwrite(tempname, a2)
                 # image = "<img src=\"new.jpg\" " + "width='10px' height=10px'/>"
                 # # self.info_display.insertHtml(image)
                 # self.info_display.append(image)
@@ -239,6 +242,7 @@ class Subscribe(QWidget):
         global connect_state
         while connect_state == ConnectState.connecting:
             print("wait")
+
             if connect_state == ConnectState.disconnected:
                 print('disconnect.................')
                 self.client.disconnect()
@@ -255,10 +259,12 @@ class Subscribe(QWidget):
                 self.setting_btn.setEnabled(False)
         # 持续连接获取消息
         while True:
+
             # print('state: ', self.client._state, 'loop进程：', self.client._thread)
             if self.client._state != 2:
                 # 订阅消息
                 print('.................')
+                self.parent.topic=self.topic
                 subscribe_source = list(zip(list(self.subscribe_items.keys()),[0]*len(self.subscribe_items)))
                 self.client.subscribe(subscribe_source) # 消息都在自定义的on_message函数中得到
                 if connect_state == ConnectState.disconnected:

@@ -7,6 +7,8 @@ from PyQt5.QtCore import Qt
 class SubscribeItem(QWidget):
     def __init__(self, parent):
         super(SubscribeItem, self).__init__()
+        self.parent=parent
+        self.topic=parent.topic
         self.subscribe_edit = parent.subscribe_edit
         self.subscribe_list = parent.subscribe_list
         self.subscribe_items = parent.subscribe_items
@@ -16,9 +18,11 @@ class SubscribeItem(QWidget):
         self.num = QLabel('0')
         self.mute_btn = QPushButton('屏蔽')
         self.unsubscribe_btn = QPushButton('取消订阅')
+        self.choose_btn=QPushButton("选择")
         self.init_ui()
         self.unsubscribe_btn.clicked.connect(lambda: self.clicked_unsubscribe_btn(self.title.text()))
         self.mute_btn.clicked.connect(lambda: self.clicked_mute_btn(self.title.text()))
+        self.choose_btn.clicked.connect(lambda: self.clicked_choose_btn(self.title.text()))
 
     def init_ui(self):
         font = QFont()
@@ -34,6 +38,7 @@ class SubscribeItem(QWidget):
         btn_layout.addStretch()
         btn_layout.addWidget(self.mute_btn)
         btn_layout.addWidget(self.unsubscribe_btn)
+        btn_layout.addWidget(self.choose_btn)
         layout = QVBoxLayout()
         layout.addLayout(title_layout)
         layout.addStretch()
@@ -64,6 +69,12 @@ class SubscribeItem(QWidget):
                     self.subscribe_list.item(i).setBackground(QBrush(QColor(0, 0, 0, 210)))
                     self.isMuted = True
                 break
+
+    def clicked_choose_btn(self,name):
+        self.topic=name
+        self.parent.topic=name
+
+
 
     def inc(self):
         num = int(self.num.text())
