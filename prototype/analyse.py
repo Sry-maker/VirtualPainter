@@ -21,10 +21,16 @@ def AiVirtualPainter(parent):
     for imPath in mylist:
         image = cv2.imread(f'{folderPath}/{imPath}')
         overlayList.append(image)
-    header = overlayList[0]
-    color = [255, 0, 0]
-    brushThickness = 15
+
+    # 默认图片以及笔型笔色、橡皮擦大小
+    header = overlayList[6]
+    color = [255, 255, 255]
+    brushThickness = 30
     eraserThickness = 60
+    # 记录选择线型和颜色的组合,是否选择橡皮
+    my_line = 2
+    my_color = 1
+    my_eraser = 0
 
     cap = cv2.VideoCapture(0)  # 若使用笔记本自带摄像头则编号为0  若使用外接摄像头 则更改为1或其他编号
     cap.set(3, 1280)
@@ -33,7 +39,7 @@ def AiVirtualPainter(parent):
     # cap.set(4, 500)
     detector = htm.handDetector()
     xp, yp = 0, 0
-    # imgCanvas = np.zeros((720, 1280, 3), np.uint8)  # 新建一个画板
+    imgCanvas = np.zeros((720, 1280, 3), np.uint8)  # 新建一个画板
     # imgCanvas = np.zeros((500, 800, 3), np.uint8)  # 新建一个画板
     while True:
         # 1.import image
@@ -54,18 +60,56 @@ def AiVirtualPainter(parent):
             # 4. If Selection Mode – Two finger are up
             if fingers[1] and fingers[2]:
                 if y1 < 153:
-                    if 0 < x1 < 320:
-                        header = overlayList[0]
-                        color = [50, 128, 250]
-                    elif 320 < x1 < 640:
-                        header = overlayList[1]
-                        color = [0, 0, 255]
-                    elif 640 < x1 < 960:
-                        header = overlayList[2]
+                    if 0 < x1 < 969:
+                        my_eraser = 0
+                    if 0 < x1 < 87:
+                        my_line = 1
+                        brushThickness = 10
+                    elif 87 < x1 < 163:
+                        my_line = 2
+                        brushThickness = 30
+                    elif 163 < x1 < 255:
+                        my_line = 3
+                        brushThickness = 50
+                    elif 255 < x1 < 385:
+                        my_color = 1
+                        color = [255, 255, 255]
+                    elif 385 < x1 < 496:
+                        my_color = 2
+                        color = [36, 28, 237]
+                    elif 496 < x1 < 607:
+                        my_color = 3
+                        color = [0, 242, 255]
+                    elif 607 < x1 < 720:
+                        my_color = 4
+                        color = [232, 162, 0]
+                    elif 720 < x1 < 831:
+                        my_color = 5
                         color = [0, 255, 0]
-                    elif 960 < x1 < 1280:
-                        header = overlayList[3]
+                    elif 831 < x1 < 969:
+                        my_color = 6
+                        color = [220, 35, 197]
+
+            if fingers[1] and fingers[2]:
+                if y1 < 153:
+                    if 969 < x1 < 1280:
+                        my_eraser = 1
+                    if 969 < x1 < 1057:
+                        header = overlayList[18]
                         color = [0, 0, 0]
+                        eraserThickness = 30
+                    elif 1057 < x1 < 1149:
+                        header = overlayList[19]
+                        color = [0, 0, 0]
+                        eraserThickness = 60
+                    elif 1149 < x1 < 1280:
+                        header = overlayList[20]
+                        color = [0, 0, 0]
+                        eraserThickness = 90
+
+            if my_eraser == 0:
+                header = overlayList[(my_line - 1) * 6 + my_color - 1]
+
             img[0:1280][0:153] = header
 
             # 5. If Drawing Mode – Index finger is up
