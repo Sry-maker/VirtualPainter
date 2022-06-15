@@ -8,7 +8,7 @@ from PyQt5.QtCore import Qt
 class MainWindow(QMainWindow):
     def __init__(self):
         super(MainWindow, self).__init__()
-        MainWindow.setFixedSize(self,1500,950)
+        MainWindow.setFixedSize(self,1700,950)
         self.init()
 
     def init(self):
