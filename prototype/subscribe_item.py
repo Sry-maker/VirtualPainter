@@ -71,6 +71,11 @@ class SubscribeItem(QWidget):
                 break
 
     def clicked_choose_btn(self,name):
+        for i in range(0, self.subscribe_list.count()):
+            if self.subscribe_list.item(i).whatsThis() == name:
+                self.subscribe_list.item(i).setBackground(QBrush(QColor(0, 95, 158, 160)))
+            else:
+                self.subscribe_list.item(i).setBackground(QBrush(QColor(0, 0, 0, 0)))
         self.topic=name
         self.parent.topic=name
 

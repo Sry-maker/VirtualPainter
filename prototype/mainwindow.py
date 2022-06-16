@@ -14,7 +14,7 @@ class MainWindow(QMainWindow):
     def init(self):
         font = QFont()
         font.setPointSize(35)
-        title = QLabel('看板')
+        title = QLabel('可协作式画板')
         title.setFont(font)
         line = QFrame(self)
         line.setFrameShape(QFrame.HLine)
@@ -35,5 +35,5 @@ class MainWindow(QMainWindow):
         widget = QWidget(self)
         widget.setLayout(layout)
         self.setCentralWidget(widget)
-        self.setWindowTitle('看板')
+        self.setWindowTitle('可协作式画板')
         self.show()
