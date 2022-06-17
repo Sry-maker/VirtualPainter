@@ -22,7 +22,6 @@ def AiVirtualPainter(parent):
     for imPath in mylist:
         image = cv2.imread(f'{folderPath}/{imPath}')
         overlayList.append(image)
-
     # 默认图片以及笔型笔色、橡皮擦大小
     header = overlayList[6]
     color = [255, 255, 255]
@@ -32,7 +31,7 @@ def AiVirtualPainter(parent):
     my_line = 2
     my_color = 1
     my_eraser = 0
-
+    
     cap = cv2.VideoCapture(0)  # 若使用笔记本自带摄像头则编号为0  若使用外接摄像头 则更改为1或其他编号
     cap.set(3, 1280)
     cap.set(4, 720)
@@ -41,23 +40,32 @@ def AiVirtualPainter(parent):
     detector = htm.handDetector()
     xp, yp = 0, 0
     imgCanvas = np.zeros((720, 1280, 3), np.uint8)  # 新建一个画板
-    # imgCanvas = np.zeros((500, 800, 3), np.uint8)  # 新建一个画板
+    
+    yingguang=0 # 为1代表当前状态选中了荧光笔
+    
+    imgCanvas2=np.zeros((720, 1280, 3), np.uint8) # 荧光笔画板，用于记录荧光笔笔迹
+    
+    changfangxing=0
+    yuanxing=0
+    
+    flag_draw_shape=0
+    
     while True:
         # 1.import image
         success, img = cap.read()
         img = cv2.flip(img, 1)  # 翻转
-
+        
         # 2.find hand landmarks
         img = detector.findHands(img)
         lmList = detector.findPosition(img, draw=True)
-
+    
         if len(lmList) != 0:
             x1, y1 = lmList[8][1:]
-            x2, y2 = lmList[12][1:]
-
+            # x2, y2 = lmList[12][1:]
+    
             # 3. Check which fingers are up
             fingers = detector.fingersUp()
-
+    
             # 4. If Selection Mode – Two finger are up
             if fingers[1] and fingers[2]:
                 if y1 < 153:
@@ -90,7 +98,7 @@ def AiVirtualPainter(parent):
                     elif 831 < x1 < 969:
                         my_color = 6
                         color = [220, 35, 197]
-
+    
             if fingers[1] and fingers[2]:
                 if y1 < 153:
                     if 969 < x1 < 1280:
@@ -107,55 +115,139 @@ def AiVirtualPainter(parent):
                         header = overlayList[20]
                         color = [0, 0, 0]
                         eraserThickness = 90
-
+                        
+                # 另外两种情况
+            if fingers[1] and fingers[2]:
+                if y1>153 and x1<150:
+                    # 是否荧光笔
+                    if 153<y1<253:
+                        yingguang=0
+                    elif 253<y1<353:
+                        yingguang=1
+                    # 两种图形
+                    elif 353<y1<453:
+                        changfangxing=1
+                        yuanxing=0
+                    elif 453<y1<553:
+                        yuanxing=1
+                        changfangxing=0
+                        
+    
             if my_eraser == 0:
                 header = overlayList[(my_line - 1) * 6 + my_color - 1]
-
+    
             img[0:1280][0:153] = header
-
+    
             # 5. If Drawing Mode – Index finger is up
-            if fingers[1] and fingers[2] == False:
+            
+            if fingers[1] and fingers[2] == False and (changfangxing+yuanxing)==0:
                 cv2.circle(img, (x1, y1), 15, color, cv2.FILLED)
                 print("Drawing Mode")
                 if xp == 0 and yp == 0:
                     xp, yp = x1, y1
 
-                if color == [0, 0, 0]:
-                    cv2.line(img, (xp, yp), (x1, y1), color, eraserThickness)  # ??
-                    cv2.line(parent.imgCanvas, (xp, yp), (x1, y1), color, eraserThickness)
-                else:
-                    cv2.line(img, (xp, yp), (x1, y1), color, brushThickness)   # ??
-                    cv2.line(parent.imgCanvas, (xp, yp), (x1, y1), color, brushThickness)
+                if yingguang==0:
+                    if color == [0, 0, 0]:
+                        cv2.line(img, (xp, yp), (x1, y1), color, eraserThickness)  # ??
+                        cv2.line(parent.imgCanvas, (xp, yp), (x1, y1), color, eraserThickness)
+                        cv2.line(imgCanvas2, (xp, yp), (x1, y1), color, eraserThickness)
+                    else:
+                        cv2.line(img, (xp, yp), (x1, y1), color, brushThickness)  # ??
+                        cv2.line(parent.imgCanvas, (xp, yp), (x1, y1), color, brushThickness)
+                elif yingguang==1:
+                    if color == [0, 0, 0]:
+                        cv2.line(img, (xp, yp), (x1, y1), color, eraserThickness)  # ??
+                        cv2.line(parent.imgCanvas, (xp, yp), (x1, y1), color, eraserThickness)
+                        cv2.line(imgCanvas2, (xp, yp), (x1, y1), color, eraserThickness)
+                    else:
+                        cv2.line(img, (xp, yp), (x1, y1), color, brushThickness)  # ??
+                        cv2.line(imgCanvas2, (xp, yp), (x1, y1), color, brushThickness)
+                        
+                        
+                        
+            "???????????????????????????????"
+            
+            if flag_draw_shape!=2:
+                
+                xp, yp = x1, y1
 
-            xp, yp = x1, y1
-            # Clear Canvas when all fingers are up
-            # if all (x >= 1 for x in fingers):
-            #     imgCanvas = np.zeros((720, 1280, 3), np.uint8)
-
+        
+        
         # 实时显示画笔轨迹的实现
         imgGray = cv2.cvtColor(parent.imgCanvas, cv2.COLOR_BGR2GRAY)
         _, imgInv = cv2.threshold(imgGray, 50, 255, cv2.THRESH_BINARY_INV)
         imgInv = cv2.cvtColor(imgInv, cv2.COLOR_GRAY2BGR)
-        # cv2.imwrite('C:\\Users\\Lenovo\\Desktop\\t\\a.jpg', imgInv)
         img = cv2.bitwise_and(img, imgInv)
-        # cv2.imwrite('C:\\Users\\Lenovo\\Desktop\\t\\b.jpg', img)
         img = cv2.bitwise_or(img, parent.imgCanvas)
         chuanshuimg=cv2.bitwise_or(imgInv, parent.imgCanvas)
         parent.chuanshu=chuanshuimg
         a1_dtype = str(parent.chuanshu.dtype)
         a1_shape = str(parent.chuanshu.shape)
-        # cv2.imwrite('C:\\Users\\Lenovo\\Desktop\\t\\d.jpg', chuanshuimg)
-        img[0:1280][0:153] = header
+        
+        imgGray2 = cv2.cvtColor(imgCanvas2, cv2.COLOR_BGR2GRAY)
+        _, imgInv2 = cv2.threshold(imgGray2, 50, 255, cv2.THRESH_BINARY_INV)
+        imgInv2 = cv2.cvtColor(imgInv2, cv2.COLOR_GRAY2BGR)
+        # 按位与，挖掉笔迹部分
+        img2=cv2.bitwise_and(img, imgInv2)
+        # 线性插值合成
+        img2temp1 = cv2.addWeighted(imgCanvas2, 0.6, img, 0.4, 20)
+        # 按位或，留下笔迹在图片的部分
+        img2temp2=cv2.bitwise_and(img2temp1, 255-imgInv2)
+        # 合成两部分笔迹
+        img2final=img2temp2+img2
+        
+        
+        if len(lmList) != 0 and (changfangxing+yuanxing>0):
+            '''这里是绘制形状的部分'''
+            if fingers[1] and fingers[2]:
+                if flag_draw_shape==0:
+                    flag_draw_shape=1
+                    xp, yp = lmList[8][1:]
+                elif flag_draw_shape==1:
+                    xp, yp = lmList[8][1:]
+                elif flag_draw_shape==2:
+                    flag_draw_shape=0
+                    if changfangxing:
+                        changfangxing=0
+                        img2final=cv2.rectangle(img2final, (xp, yp), (x1, y1), color, int(brushThickness/2))
+                        
+                        parent.imgCanvas=cv2.rectangle(parent.imgCanvas, (xp, yp), (x1, y1), color, int(brushThickness/2))
+                        print((xp, yp), (x1, y1))
+                        xp, yp = x1, y1
+                        
+                    elif yuanxing:
+                        yuanxing=0
+                        parent.imgCanvas=cv2.circle(parent.imgCanvas, (int((xp+x1)/2),int((yp+y1)/2)), int(min(abs(x1-xp),abs(y1-yp))), color, int(brushThickness/2))
+                        img2final=cv2.circle(img2final, (int((xp+x1)/2),int((yp+y1)/2)), int(min(abs(x1-xp),abs(y1-yp))), color, int(brushThickness/2))
+                        xp, yp = x1, y1
+                    
+            elif(fingers[1] and fingers[2] == False):
+                flag_draw_shape=2
+    
+                if changfangxing:
+                    if xp == 0 and yp == 0:
+                        xp, yp = x1, y1
+                    img2final=cv2.rectangle(img2final, (xp, yp), (x1, y1), color,  int(brushThickness/2))
+                    
+                elif yuanxing:
+                    if xp == 0 and yp == 0:
+                        xp, yp = x1, y1
+                    img2final=cv2.circle(img2final, (int((xp+x1)/2),int((yp+y1)/2)), int(min(abs(x1-xp),abs(y1-yp))), color, int(brushThickness/2))
+        
 
+        img2final[0:1280][0:153] = header
+        if yingguang:
+            sidebar = overlayList[22]
+        else:
+            sidebar = overlayList[21]
 
-        # cv2.imshow("Image", img)
-        # cv2.imshow("Canvas", imgCanvas)
-        # cv2.imshow("Inv", imgInv)
+        img2final[153:720,0:150] = sidebar
+
         # pyqt5界面更新
         if 1:
-            height,width,bytesPerComponent = img.shape
+            height,width,bytesPerComponent = img2final.shape
             bytesPerLine = bytesPerComponent * width
-            qImg = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)  # opencv读取的bgr格式图片转换成rgb格式
+            qImg = cv2.cvtColor(img2final, cv2.COLOR_BGR2RGB)  # opencv读取的bgr格式图片转换成rgb格式
 
             qImg = QtGui.QImage(qImg.data,width, height, bytesPerLine,
                                   QtGui.QImage.Format_RGB888)  # pyqt5转换成自己能放的图片格式
