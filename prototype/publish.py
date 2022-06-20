@@ -106,7 +106,7 @@ class Publish():
     def __init__(self):
 
         # 连接信息，会根据设置界面的输入更新
-        self.connect_info = {'address': '47.100.197.182', 'port': '1883', 'username': '', 'password': ''}
+        self.connect_info = {'address': '47.100.X.X', 'port': '1883', 'username': '', 'password': ''}
 
         self.connect()
 
