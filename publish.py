@@ -96,8 +96,8 @@ def message(client, userdata, msg):
 
 class mqtt():
     def __init__(self,topic = "paint",on_message = message):
-        self.__broker = '47.100.197.182'
-        self.__port = 1883
+        self.__broker = '47.100.X.X'
+        self.__port = -9999
         self.topic = topic
         # generate client ID with pub prefix randomly
         self.__subscribe_id = f'python-mqtt-{random.randint(0, 1000)}'
